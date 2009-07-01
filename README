@@ -1,0 +1,51 @@
+Project Status: Must Hack to Work
+
+dropin-cloudfront.php was the first pass and was refactoring into multiple files/classes. Those start with s3-...
+
+
+WORK NOTES:
+
+currently manually triggered sync
+finds .js, .png, .gif, .css starting in base directory
+does md5 on file for hash for DB
+hash is
+{ path/from/base/to/file, md5sum }
+.css will need to be parsed (find/replace)  WILL NEED TO BE DIRECTORY AWARE and able to make a base path!
+       -need to check for ones beginning with ./  ../  asdf/ etc.
+store local copy of files in a tmp dir
+call s3sync command to sync
+
+TO USE:
+Look up filename in cache and return cloudfront name
+parse html output to find/replace embedded images
+use object cache to cache parsed html output
+storage key in object cache should be md5sum of parsed html output AND timestamp of when it was last synced (with changes of course)
+
+things to override:
+@import url( <?php bloginfo('stylesheet_url'); ?> );
+<?php bloginfo('template_url') ?>/css/typography.css" />
+<?php bloginfo('template_directory') ?>/css/ie.css
+
+OR
+
+add_filter('wp_head', 'cloudfront_replace_attachment_url');
+add_filter('the_content', 'cloudfront_replace_attachment_url');
+add_filter('wp_footer', 'cloudfront_replace_attachment_url');
+
+
+Sha1
+
+40 character one way hash.
+string sha1_file ( string $filename [, bool $raw_output ] )
+string sha1 ( string $str [, bool $raw_output ] )
+
+
+string hash ( string $algo , string $data [, bool $raw_output ] )
+
+<?php
+echo hash('sha1', 'The quick brown fox jumped over the lazy dog.');
+echo hash_file('sha1', 'File path');
+?>
+
+http://us.php.net/manual/en/function.sha1-file.php
+http://us.php.net/manual/en/function.sha1.php
